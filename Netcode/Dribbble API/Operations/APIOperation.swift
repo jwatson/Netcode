@@ -10,8 +10,8 @@ import Alamofire
 import CoreData
 
 
-typealias JSONObject        = [String: AnyObject]
-typealias JSONObjectArray   = [JSONObject]
+public typealias JSONObject        = [String: AnyObject]
+public typealias JSONObjectArray   = [JSONObject]
 
 
 class APIOperation: NSOperation {
@@ -22,6 +22,7 @@ class APIOperation: NSOperation {
     private let endpoint: APIEndpoint
 
     private var request: Alamofire.Request?
+    private var importDuration = CFAbsoluteTime()
 
     // We can't access the `finished` property directly in Swift (yet), so we
     // have to hack around it a bit.
@@ -70,6 +71,27 @@ extension APIOperation {
         fatalError("Subclasses must implement `\(#function)`")
     }
 
+    func importJSONObjectArray<T where T: ManagedObject>(JSON: JSONObjectArray) -> [T] {
+        if cancelled {
+            finished = true
+            return []
+        }
+
+        var objects = [T]()
+        for JSONObj in JSON {
+            if cancelled {
+                context.rollback()
+                finished = true
+                return []
+            }
+                
+            let managedObject = T.objectFromJSON(JSONObj, inContext: self.context)
+            objects.append(managedObject)
+        }
+
+        return objects
+    }
+
 }
 
 // MARK: - Private
@@ -82,17 +104,19 @@ private extension APIOperation {
             return
         }
 
-        let timeline = response.timeline
-        let headers = response.response?.allHeaderFields as? [String: AnyObject] ?? [:]
-        print("[\(endpoint.method) /\(endpoint.path)] \(requestTimelineLogString(timeline)) \(customHeadersLogString(headers))")
-
         switch response.result {
         case .Success(let JSON):
+            let importStart = CFAbsoluteTimeGetCurrent()
             importJSONResponse(JSON)
+            importDuration = CFAbsoluteTimeGetCurrent() - importStart
 
         case .Failure(let error):
             debugPrint("API request failed: \(error)")
         }
+
+        let timeline = response.timeline
+        let headers = response.response?.allHeaderFields as? [String: AnyObject] ?? [:]
+        print("[\(endpoint.method) /\(endpoint.path)] \(requestTimelineLogString(timeline)) \(customHeadersLogString(headers)) \(coreDataImportLogString())")
 
         finished = true
     }
@@ -125,6 +149,10 @@ private extension APIOperation {
         }
 
         return blah.joinWithSeparator(" ")
+    }
+
+    func coreDataImportLogString() -> String {
+        return String(format: "core-data=%.3fs", importDuration)
     }
 
 }

@@ -130,8 +130,14 @@ extension ViewController: NSFetchedResultsControllerDelegate {
                 assertionFailure("The index path parameters should not be `nil` on move!")
                 return
             }
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-            tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
+
+            if newIndexPath != indexPath {
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
+            }
+            else {
+                tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .None)
+            }
 
         case .Update:
             guard let indexPath = indexPath else {

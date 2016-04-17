@@ -12,34 +12,21 @@ import Foundation
 final class ShotsOperation: APIOperation {
 
     override func importJSONResponse(JSON: AnyObject) {
-        if cancelled {
-            finished = true
-            return
-        }
-
         guard let JSON = JSON as? JSONObjectArray else {
             fatalError("Incorrect type!")
         }
 
-        let importStart = CFAbsoluteTimeGetCurrent()
+        context.performBlockAndWait {
+            let shots: [Shot] = self.importJSONObjectArray(JSON)
+            if shots.isEmpty {
+                return
+            }
 
-        context.performBlockAndWait { 
-            for shot in JSON {
-                if self.cancelled {
-                    self.context.rollback()
-                    self.finished = true
-                    return
-                }
-                
-                Shot.objectFromJSON(shot, inContext: self.context)
+            for (index, object) in shots.enumerate() {
+                object.popularSortIndex = index
             }
 
             try! self.context.save()
-        }
-
-        defer {
-            let importDuration = CFAbsoluteTimeGetCurrent() - importStart
-            print(String(format: "[Shot import] duration=%.3fs", importDuration))
         }
     }
 

@@ -5,10 +5,11 @@
         <attribute name="createdAt" attributeType="Date" syncable="YES"/>
         <attribute name="desc" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="popularSortIndex" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="updatedAt" attributeType="Date" indexed="YES" syncable="YES"/>
+        <attribute name="updatedAt" attributeType="Date" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Shot" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="Shot" positionX="-63" positionY="-18" width="128" height="150"/>
     </elements>
 </model>

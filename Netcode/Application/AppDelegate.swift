@@ -33,8 +33,13 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let psc = NSPersistentStoreCoordinator(managedObjectModel: model)
-//        psc.net_destroySQLiteStoreAtURL(storeURL)
-        try! psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: nil)
+        do {
+            try psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: nil)
+        }
+        catch {
+            psc.net_destroySQLiteStoreAtURL(storeURL)
+            try! psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: nil)
+        }
 
         let mainManagedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
         mainManagedObjectContext.persistentStoreCoordinator = psc

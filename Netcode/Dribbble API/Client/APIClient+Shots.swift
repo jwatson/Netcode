@@ -62,7 +62,6 @@ extension APIClient {
             case .List:
                 return [
                     "access_token": "efd996a94bafbb3cd12abff895bb9dff92764a7b7511b83461c766c7385b2f5e",
-                    "per_page": 100,
                 ]
 
             case .Read:

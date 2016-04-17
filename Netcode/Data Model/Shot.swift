@@ -19,7 +19,9 @@ public final class Shot: NSManagedObject {
     @NSManaged public private(set) var createdAt: NSDate
     @NSManaged public private(set) var updatedAt: NSDate
 
-    static func objectFromJSON(JSON: JSONObject, inContext context: NSManagedObjectContext) -> Shot {
+    @NSManaged public var popularSortIndex: Int
+
+    public static func objectFromJSON(JSON: JSONObject, inContext context: NSManagedObjectContext) -> Shot {
         do {
             let primaryKeyValue: Int = try JSON.net_getValue("id")
 
@@ -49,7 +51,7 @@ extension Shot: ManagedObject {
     }
 
     public static var defaultSortDescriptors: [NSSortDescriptor] {
-        return [NSSortDescriptor(key: "updatedAt", ascending: false)]
+        return [NSSortDescriptor(key: "popularSortIndex", ascending: true)]
     }
 
     public static var primaryKey: String {

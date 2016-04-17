@@ -20,6 +20,8 @@ public protocol ManagedObject: class {
     /// The primary object identifier.
     static var primaryKey: String { get }
 
+    static func objectFromJSON(JSON: JSONObject, inContext context: NSManagedObjectContext) -> Self
+
 }
 
 extension ManagedObject where Self: NSManagedObject {
